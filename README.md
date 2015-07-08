@@ -38,3 +38,47 @@ Add the json ciphertext
 Get the original decrypted json object
 
     String originalJsonObjectString = dCrypter.getPlainJson();
+## Protocol
+### cipherData object
+The cipherData object contains information about the algorithm and encrypted fields in an encrypted json object. It always has the field name `cipherData` and is always found at the root.  
+A cipherData object might look like this during processing
+``` json
+{
+	"iv":"9Tp+5f4EU3jbtqZNSg99IA==",
+	"cipher":"SHA-256/CTR/NoPadding",
+	"fields":{
+		"field1":{
+			"obfuscatedFieldName":true,
+			"digest":"MD5",
+			"iv":"qCDIPFhANrnTQrKWqJTTzw=="
+		},
+		"field2":{
+			"obfuscatedFieldName":false,
+			"iv":"4Lh7m6YfwAWG8m1VGrT/ag=="
+		}
+	}
+}
+```
+Or this once encrypted
+``` json
+{
+	"iv":"9Tp+5f4EU3jbtqZNSg99IA==",
+	"cipher":"SHA-256/CTR/NoPadding",
+	"fields":"BIIZSayIBQvVGp6mJiZllm28DVPJQiuPKrL67ehmq1Dbvrq27q1n7GTNNf97digTfuj1IoMR8YfKFx9hUvBRL6SQq1TxDeB0IvGrJ3aN7TTzSF10R585pidfwHY9wV32u7ZcMuZfbjYSKIiSB/PSdMVg30F08i2lkhdy957bs/I4iNqp3P0IN7rwaqEj+tjKjBhpqzr03ta3JZ7yaRKywQ=="
+}
+```
+#### Fields
+##### iv
+The `iv` field is a base 64 encoded string containing the initialization vector needed to decrypt the `fields` object.
+##### cipher
+The `cipher` field is a string containing a cipher transform. https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#Cipher.
+##### fields
+The `fields` object contains field descriptors. In an encrypted json object `fields` will be a base 64 string, but in processing it will be an object with field descriptor objects named corresponding to field names in the encrypted fields map.
+##### field descriptor
+Field descriptor objects have the following fields
+###### iv
+A required field. A base 64 string with the iv used to decrypt the field in the root object.
+###### obfuscatedFieldName
+A required boolean field indicating if the field's name is obfuscated at the top level object.
+###### digest
+Required if `obfuscatedFieldName` is true. A string containing the name of the digest algorithm used to obfuscate the field name.
